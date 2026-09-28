@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ t("nav.questions") }}</h1>
+<details class="panel">
+  <summary>{{ t("questions.add") }}</summary>
+  <form method="post" action="/questions">
+    <select name="block_key" aria-label="{{ t('questions.block') }}">
+      {% for key, _ in groups %}<option value="{{ key }}">{{ t("block." ~ key ~ ".title") }}</option>{% endfor %}
+    </select>
+    <input name="text_en" placeholder="EN" aria-label="EN">
+    <input name="text_ru" placeholder="RU" aria-label="RU">
+    <small class="muted">{{ t("questions.hint") }}</small>
+    <button type="submit">{{ t("action.add") }}</button>
+  </form>
+</details>
+{% for key, qs in groups %}
+<section id="block-{{ key }}" class="panel">
+  <h3>{{ t("block." ~ key ~ ".title") }}</h3>
+  {% for q in qs %}{% include "partials/question_row.html" %}{% else %}<p class="muted">—</p>{% endfor %}
+</section>
+{% endfor %}
+{% endblock %}

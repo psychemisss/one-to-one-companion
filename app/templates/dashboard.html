@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ t("nav.dashboard") }}</h1>
+{% if not cards %}
+<p class="empty">{{ t("dashboard.empty") }} <a href="/engineers">{{ t("dashboard.add_engineers") }}</a></p>
+{% else %}
+<ul class="roster">
+{% for c in cards %}
+  <li class="state-{{ c.state }}">
+    <div class="who">
+      <a href="/engineers/{{ c.e.id }}">{{ c.e.name }}</a>
+      <small>{{ c.e.role or "" }}</small>
+    </div>
+
+    <div class="cadence">
+      <div class="track" role="img" aria-label="{{ t('dashboard.days_since', n=c.days_since) if c.last else t('dashboard.never') }}"><span style="width: {{ c.fill }}%"></span></div>
+      <div class="track-meta">
+        {% if c.last %}
+        <span>{{ t("dashboard.last") }} {{ c.last.date | fmt_date }}, {{ t("dashboard.days_since", n=c.days_since) }}</span>
+        <span class="status">
+          {% if c.state == "overdue" %}{{ t("dashboard.overdue_by", n=-c.days_left) }}
+          {% elif c.state == "soon" %}{{ t("dashboard.due_in", n=c.days_left) }}
+          {% else %}{{ t("dashboard.next_due") }} {{ c.next_due | fmt_date }}{% endif %}
+        </span>
+        {% else %}
+        <span class="status">{{ t("dashboard.never") }}</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="mood-cell" title="{{ t('common.mood') }}">
+      <span>{{ t("common.mood") }}</span>
+      <strong>{{ c.moods[-1] if c.moods else "—" }}</strong>
+      {% with moods=c.moods, w=56, h=22 %}{% include "partials/mood_spark.html" %}{% endwith %}
+    </div>
+
+    <div class="counts">
+      {{ t("dashboard.open_actions") }}<br>
+      {{ t("dashboard.mine") }} <b>{{ c.mine }}</b>, {{ t("dashboard.theirs") }} <b>{{ c.theirs }}</b>
+    </div>
+
+    <form method="post" action="/engineers/{{ c.e.id }}/sessions">
+      <input type="hidden" name="session_type" value="{{ 'regular' if c.last else 'first' }}">
+      <button type="submit" class="{{ '' if c.state in ('overdue', 'soon', 'due') else 'outline' }}">{{ t("action.start") }}</button>
+    </form>
+  </li>
+{% endfor %}
+</ul>
+{% endif %}
+
+<h2>{{ t("dashboard.team_actions") }}</h2>
+{% if actions %}
+<div class="panel">
+<table>
+  <thead><tr><th>{{ t("action_item.due") }}</th><th>{{ t("action_item.engineer") }}</th><th>{{ t("action_item.owner") }}</th><th>{{ t("action_item.text") }}</th></tr></thead>
+  <tbody>
+  {% for a in actions %}
+    <tr>
+      <td>{{ a.due_date | fmt_date or "—" }}</td>
+      <td><a href="/engineers/{{ a.engineer_id }}">{{ a.engineer_name }}</a></td>
+      <td>{{ t("owner." ~ a.owner) }}</td>
+      <td>{{ a.text }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p class="empty">{{ t("dashboard.no_actions") }}</p>
+{% endif %}
+{% endblock %}

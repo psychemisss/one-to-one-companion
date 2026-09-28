@@ -1,0 +1,7 @@
+<form method="post" action="/engineers/{{ eid }}/sessions" class="inline-form">
+  <select name="session_type" aria-label="{{ t('session.type') }}">
+    <option value="regular">{{ t("session.type.regular") }}</option>
+    <option value="first" {% if first %}selected{% endif %}>{{ t("session.type.first") }}</option>
+  </select>
+  <button type="submit">{{ t("action.start") }}</button>
+</form>

@@ -1,0 +1,12 @@
+<h3>{{ t("agenda.title") }}</h3>
+<ul class="plain">
+{% for a in agenda %}
+  <li>
+    <input type="checkbox" id="ag-{{ a.id }}" {% if a.session_id %}checked{% endif %}
+      hx-post="/agenda/{{ a.id }}/toggle" hx-vals='{"session_id": {{ s.id }}}' hx-target="#topics">
+    <label for="ag-{{ a.id }}" class="{{ 'discussed' if a.session_id }}">{{ a.text }}</label>
+  </li>
+{% else %}
+  <li class="muted">{{ t("agenda.empty") }}</li>
+{% endfor %}
+</ul>

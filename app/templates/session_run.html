@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ e.name }} · {{ t("block." ~ block ~ ".title") }}{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div>
+    <strong><a href="/engineers/{{ e.id }}" class="contrast">{{ e.name }}</a></strong>
+    <span class="muted">{{ t("session.type." ~ s.session_type) }}</span>
+    <input type="date" name="date" value="{{ s.date }}" aria-label="{{ t('session.date') }}"
+      hx-post="/sessions/{{ s.id }}/field" hx-trigger="change" hx-target="#saved-date">
+    <span id="saved-date" class="saved"></span>
+  </div>
+  <div class="timer" id="timer" data-started="{{ s.started_at }}" data-session="{{ s.id }}" data-block="{{ block }}" data-minutes="{{ minutes }}"
+       data-over="{{ t('run.over') }}">
+    <div>{{ t("run.elapsed") }} <span id="elapsed">0:00</span></div>
+    <div>{{ t("run.block_left") }} <span id="block-left">{{ minutes }}:00</span></div>
+  </div>
+</div>
+
+<div class="run">
+  <aside class="rail">
+    <ol>
+    {% for key, mins in blocks %}
+      <li style="--min: {{ mins }}" class="{% if key == block %}current{% elif loop.index0 < idx %}done{% endif %}">
+        <a href="/sessions/{{ s.id }}/run?block={{ key }}" {% if key == block %}aria-current="step"{% endif %}>
+          <span>{{ t("block." ~ key ~ ".title") }}</span><small>{{ mins }}′</small>
+        </a>
+      </li>
+    {% endfor %}
+    </ol>
+    <details>
+      <summary>{{ t("run.private_notes") }}</summary>
+      <textarea name="private_notes" rows="6" aria-label="{{ t('run.private_notes') }}" hx-post="/sessions/{{ s.id }}/field" hx-trigger="keyup changed delay:800ms, change" hx-target="#saved-private">{{ s.private_notes or "" }}</textarea>
+      <span id="saved-private" class="saved"></span>
+    </details>
+    <form method="post" action="/sessions/{{ s.id }}/finish">
+      <button type="submit" class="secondary">{{ t("run.finish") }}</button>
+    </form>
+  </aside>
+
+  <section class="stage">
+    <hgroup>
+      <h2>{{ t("block." ~ block ~ ".title") }}</h2>
+      <p>{{ t("block." ~ block ~ ".purpose") }}</p>
+    </hgroup>
+
+    {% if questions %}<div id="questions" class="prompts">{% include "partials/questions.html" %}</div>{% endif %}
+
+    {% if block == "checkin" %}
+      <div id="mood">{% include "partials/mood.html" %}</div>
+    {% elif block == "review" %}
+      <h3>{{ t("run.review_title") }}</h3>
+      <div style="margin-bottom:1.5rem">
+      {% for a in review %}{% include "partials/action_review.html" %}{% else %}<p class="muted">{{ t("run.review_empty") }}</p>{% endfor %}
+      </div>
+    {% elif block == "their_topics" %}
+      <div id="topics">{% include "partials/their_topics.html" %}</div>
+    {% elif block == "wrapup" %}
+      <h3>{{ t("run.add_action") }}</h3>
+      <form class="inline-form" hx-post="/sessions/{{ s.id }}/actions" hx-target="#created" hx-on::after-request="if (event.detail.successful) this.reset()">
+        <input name="text" required placeholder="{{ t('action_item.text') }}" aria-label="{{ t('action_item.text') }}" style="flex-basis:16rem">
+        <select name="owner" aria-label="{{ t('action_item.owner') }}">
+          <option value="them">{{ t("owner.them") }}</option>
+          <option value="me">{{ t("owner.me") }}</option>
+        </select>
+        <input type="date" name="due_date" aria-label="{{ t('action_item.due') }}">
+        <button type="submit">{{ t("action.add") }}</button>
+      </form>
+      <div id="created">{% include "partials/session_actions.html" %}</div>
+    {% endif %}
+
+    <label>{{ t("run.notes") }} <span id="saved-note" class="saved"></span>
+      <textarea name="content" rows="10" hx-post="/sessions/{{ s.id }}/notes/{{ block }}" hx-trigger="keyup changed delay:800ms, change" hx-target="#saved-note">{{ note }}</textarea>
+    </label>
+
+    <div class="navbtns">
+      {% if prev %}<a role="button" class="secondary outline" id="prev" href="/sessions/{{ s.id }}/run?block={{ prev }}">← {{ t("run.prev") }}</a>{% else %}<span></span>{% endif %}
+      {% if next %}<a role="button" id="next" href="/sessions/{{ s.id }}/run?block={{ next }}">{{ t("run.next") }}</a>{% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/timer.js"></script>{% endblock %}

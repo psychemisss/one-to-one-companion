@@ -1,0 +1,6 @@
+<p>{{ t("run.mood") }}</p>
+<div class="mood" aria-label="{{ t('run.mood') }}">
+{% for m in range(1, 6) %}
+  <button class="outline" aria-pressed="{{ 'true' if s.mood == m else 'false' }}" hx-post="/sessions/{{ s.id }}/field" hx-vals='{"mood": "{{ m }}"}' hx-target="#mood">{{ m }}</button>
+{% endfor %}
+</div>

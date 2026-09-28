@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ e.name }} · {{ s.date | fmt_date }}{% endblock %}
+{% block content %}
+<div class="page-head">
+<hgroup>
+  <h1><a href="/engineers/{{ e.id }}">{{ e.name }}</a>, {{ s.date | fmt_date }}</h1>
+  <p>{{ t("session.type." ~ s.session_type) }}, {{ t("status." ~ s.status) }}. {{ t("common.mood") }}: {{ s.mood or "—" }}</p>
+</hgroup>
+<p style="margin:0">
+  <a role="button" href="/sessions/{{ s.id }}/run">{{ t("action.edit") }}</a>
+  <a role="button" class="secondary outline" href="/sessions/{{ s.id }}/export.md">{{ t("session.export_md") }}</a>
+</p>
+</div>
+
+<div class="panel summary">
+{% for key, _ in blocks %}
+<section>
+  <h3>{{ t("block." ~ key ~ ".title") }}</h3>
+  {% if notes.get(key) %}<pre class="note">{{ notes[key] }}</pre>{% else %}<p class="muted">—</p>{% endif %}
+</section>
+{% endfor %}
+</div>
+
+<div class="panel summary">
+{% if discussed %}
+<section>
+<h3>{{ t("session.discussed_topics") }}</h3>
+<ul>{% for a in discussed %}<li>{{ a.text }}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+<section>
+
+<h3>{{ t("session.actions_created") }}</h3>
+<ul>
+{% for a in created %}<li>{{ a.text }} <small class="muted">{{ t("owner." ~ a.owner) }}{% if a.due_date %}, {{ a.due_date | fmt_date }}{% endif %}, {{ t("status." ~ a.status) }}</small></li>
+{% else %}<li class="muted">—</li>{% endfor %}
+</ul>
+
+</section>
+<section>
+<h3>{{ t("session.actions_closed") }}</h3>
+<ul>
+{% for a in closed %}<li>{{ a.text }} <small class="muted">{{ t("status." ~ a.status) }}</small></li>
+{% else %}<li class="muted">—</li>{% endfor %}
+</ul>
+
+</section>
+</div>
+
+{% if s.private_notes %}
+<details class="panel">
+  <summary>{{ t("run.private_notes") }}</summary>
+  <pre class="note">{{ s.private_notes }}</pre>
+</details>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ t("nav.engineers") }}</h1>
+<form method="post" action="/engineers" class="inline-form panel">
+  <input name="name" required placeholder="{{ t('engineer.name') }}" aria-label="{{ t('engineer.name') }}">
+  <input name="role" placeholder="{{ t('engineer.role') }}" aria-label="{{ t('engineer.role') }}">
+  <button type="submit">{{ t("action.add") }}</button>
+</form>
+{% if engineers %}
+<div class="panel">
+<table>
+  <thead><tr><th>{{ t("engineer.name") }}</th><th>{{ t("engineer.role") }}</th><th>{{ t("engineer.track") }}</th><th></th></tr></thead>
+  <tbody>
+  {% for e in engineers %}
+    <tr class="{{ '' if e.active else 'archived' }}">
+      <td><a href="/engineers/{{ e.id }}">{{ e.name }}</a></td>
+      <td>{{ e.role or "" }}</td>
+      <td>{{ t("track." ~ e.career_track) if e.career_track else "" }}</td>
+      <td>
+        <form method="post" action="/engineers/{{ e.id }}/active">
+          <input type="hidden" name="active" value="{{ 0 if e.active else 1 }}">
+          <button type="submit" class="btn-sm secondary outline">{{ t("action.archive") if e.active else t("action.restore") }}</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p class="empty">{{ t("engineers.empty") }}</p>
+{% endif %}
+{% endblock %}

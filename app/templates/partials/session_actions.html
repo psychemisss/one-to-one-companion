@@ -1,0 +1,8 @@
+<h4>{{ t("run.created_actions") }}</h4>
+<ul>
+{% for a in created %}
+  <li>{{ a.text }} <small class="muted">{{ t("owner." ~ a.owner) }}{% if a.due_date %}, {{ a.due_date | fmt_date }}{% endif %}</small></li>
+{% else %}
+  <li class="muted">{{ t("run.no_created") }}</li>
+{% endfor %}
+</ul>

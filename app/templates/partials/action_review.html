@@ -1,0 +1,8 @@
+<div class="review-item">
+  <span class="{{ 'discussed' if a.status != 'open' }}">{{ a.text }}
+    <small class="muted">{{ t("owner." ~ a.owner) }}{% if a.due_date %}, {{ a.due_date | fmt_date }}{% endif %}{% if a.status != "open" %}, {{ t("status." ~ a.status) }}{% elif kept %}, {{ t("run.kept") }}{% endif %}</small>
+  </span>
+  {% for st, label in [("done", "action.done"), ("open", "action.keep"), ("dropped", "action.drop")] %}
+  <button class="btn-sm {{ '' if a.status == st and (st != 'open' or kept) else 'outline secondary' }}" hx-post="/actions/{{ a.id }}/status" hx-vals='{"status": "{{ st }}", "review": 1}' hx-target="closest .review-item" hx-swap="outerHTML">{{ t(label) }}</button>
+  {% endfor %}
+</div>

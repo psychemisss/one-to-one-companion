@@ -1,0 +1,1 @@
+{% set pts = sparkline(moods, w, h) %}{% if pts %}<svg width="{{ w }}" height="{{ h }}" viewBox="0 0 {{ w }} {{ h }}" role="img" aria-label="{{ t('common.mood_trend') }}"><polyline class="spark" points="{{ pts }}"/></svg>{% endif %}

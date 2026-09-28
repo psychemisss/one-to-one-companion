@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}{{ e.name }} · {{ settings.app.name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <hgroup>
+    <h1>{{ e.name }}</h1>
+    <p>{{ e.role or "" }}{% if not e.active %} ({{ t("engineer.archived") }}){% endif %}</p>
+  </hgroup>
+  {% with eid=e.id, first=not sessions %}{% include "partials/start_form.html" %}{% endwith %}
+</div>
+
+<div class="profile-grid">
+<section class="panel">
+  <h2>{{ t("engineer.profile") }}</h2>
+  {% macro field(name, label, type="text") %}
+  <label>{{ t(label) }} <span id="saved-{{ name }}" class="saved"></span>
+    {% if type == "textarea" %}
+    <textarea name="{{ name }}" rows="3" hx-post="/engineers/{{ e.id }}/field" hx-trigger="change" hx-target="#saved-{{ name }}">{{ e[name] or "" }}</textarea>
+    {% else %}
+    <input type="{{ type }}" name="{{ name }}" value="{{ e[name] or '' }}" hx-post="/engineers/{{ e.id }}/field" hx-trigger="change" hx-target="#saved-{{ name }}">
+    {% endif %}
+  </label>
+  {% endmacro %}
+  <div class="grid">
+    {{ field("name", "engineer.name") }}
+    {{ field("role", "engineer.role") }}
+  </div>
+  <div class="grid">
+    <label>{{ t("engineer.track") }} <span id="saved-career_track" class="saved"></span>
+      <select name="career_track" hx-post="/engineers/{{ e.id }}/field" hx-trigger="change" hx-target="#saved-career_track">
+        <option value="">—</option>
+        {% for tr in ["IC", "Lead", "Undecided"] %}
+        <option value="{{ tr }}" {% if e.career_track == tr %}selected{% endif %}>{{ t("track." ~ tr) }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    {{ field("start_date", "engineer.start_date", "date") }}
+    {{ field("cadence_days", "engineer.cadence", "number") }}
+  </div>
+  {{ field("goals", "engineer.goals", "textarea") }}
+  {{ field("communication_prefs", "engineer.communication_prefs", "textarea") }}
+  {{ field("feedback_prefs", "engineer.feedback_prefs", "textarea") }}
+  {{ field("profile_notes", "engineer.profile_notes", "textarea") }}
+</section>
+
+<div>
+  <section class="panel">
+    <h2>{{ t("agenda.title") }}</h2>
+    <p class="muted"><small>{{ t("agenda.hint") }}</small></p>
+    <div id="agenda">{% include "partials/agenda_inbox.html" %}</div>
+  </section>
+
+  <section class="panel">
+    <h2>{{ t("dashboard.open_actions") }}</h2>
+    {% if actions %}
+    <ul class="plain">
+    {% for a in actions %}
+      <li>
+        <input type="checkbox" aria-label="{{ t('action.done') }}" hx-post="/actions/{{ a.id }}/status" hx-vals='{"status": "done"}' hx-target="closest li" hx-swap="outerHTML">
+        <input name="text" value="{{ a.text }}" aria-label="{{ t('action_item.text') }}" hx-post="/actions/{{ a.id }}/text" hx-trigger="change" hx-target="next .saved" style="margin:0">
+        <small class="muted" style="white-space:nowrap">{{ t("owner." ~ a.owner) }}{% if a.due_date %}, {{ a.due_date | fmt_date }}{% endif %}</small>
+        <span class="saved"></span>
+      </li>
+    {% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">{{ t("dashboard.no_actions") }}</p>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <h2>{{ t("engineer.mood_trend") }}</h2>
+    {% if moods|length > 1 %}
+      {% with w=320, h=64 %}{% include "partials/mood_spark.html" %}{% endwith %}
+      <p class="muted num"><small>{{ moods[-6:] | join(" → ") }}</small></p>
+    {% else %}
+      <p class="muted">{{ moods | join(", ") or "—" }}</p>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <h2>{{ t("engineer.history") }}</h2>
+    {% if sessions %}
+    <ul class="timeline">
+    {% for s in sessions %}
+      <li>
+        <a href="/sessions/{{ s.id }}">{{ s.date | fmt_date }}</a>
+        <small class="muted">{{ s.date | humanize }}, {{ t("session.type." ~ s.session_type) | lower }}{% if s.status != "completed" %}, {{ t("status." ~ s.status) }}{% endif %}{% if s.mood %}, {{ t("common.mood") | lower }} {{ s.mood }}{% endif %}</small>
+        {% if s.wrapup %}<br><small>{{ s.wrapup.strip().splitlines()[0] | truncate(120) }}</small>{% endif %}
+      </li>
+    {% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">{{ t("engineer.no_sessions") }}</p>
+    {% endif %}
+  </section>
+</div>
+</div>
+{% endblock %}

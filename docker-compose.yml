@@ -1,0 +1,17 @@
+services:
+  one-on-one:
+    image: ghcr.io/psychemisss/one-to-one-companion:latest
+    build: .
+    container_name: one-on-one
+    ports:
+      - "127.0.0.1:8080:8080" # use "8080:8080" to expose on the LAN (set APP_PASSWORD first)
+    volumes:
+      - ./data:/data
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # Container paths are fixed by the volume; these override any local-dev values in .env
+      DB_PATH: /data/one_on_one.db
+      LOG_DIR: /data/logs
+    restart: unless-stopped

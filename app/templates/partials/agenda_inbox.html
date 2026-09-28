@@ -1,0 +1,11 @@
+<form class="inline-form" hx-post="/engineers/{{ e.id }}/agenda" hx-target="#agenda">
+  <input name="text" placeholder="{{ t('agenda.placeholder') }}" aria-label="{{ t('agenda.placeholder') }}" required>
+  <button type="submit">{{ t("action.add") }}</button>
+</form>
+<ul class="plain">
+{% for a in agenda %}
+  <li>{{ a.text }} <button class="btn-sm secondary outline" hx-post="/agenda/{{ a.id }}/delete" hx-target="closest li" hx-swap="outerHTML" aria-label="{{ t('action.delete') }}">×</button></li>
+{% else %}
+  <li class="muted">{{ t("agenda.empty") }}</li>
+{% endfor %}
+</ul>

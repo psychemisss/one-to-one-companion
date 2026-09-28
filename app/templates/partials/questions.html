@@ -1,0 +1,4 @@
+<h4>{{ t("run.questions") }} <a href="#" hx-get="/sessions/{{ s.id }}/questions/{{ block }}" hx-target="#questions">↻ {{ t("run.shuffle") }}</a></h4>
+<ul>
+{% for q in questions %}<li>{{ qtext(q) }}</li>{% else %}<li class="muted">{{ t("run.no_questions") }}</li>{% endfor %}
+</ul>

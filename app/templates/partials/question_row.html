@@ -1,0 +1,6 @@
+<form class="inline-form {{ '' if q.active else 'archived' }}" hx-post="/questions/{{ q.id }}" hx-trigger="change" hx-target="find .saved" style="margin-bottom:.5rem">
+  <input name="text_en" value="{{ q.text_en or '' }}" placeholder="EN" aria-label="EN">
+  <input name="text_ru" value="{{ q.text_ru or '' }}" placeholder="RU" aria-label="RU">
+  <button type="button" class="btn-sm secondary outline" hx-post="/questions/{{ q.id }}/toggle" hx-target="closest form" hx-swap="outerHTML">{{ t("action.deactivate") if q.active else t("action.activate") }}</button>
+  <span class="saved"></span>
+</form>

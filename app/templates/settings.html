@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ t("nav.settings") }}</h1>
+{% if imported %}<p><mark>{{ t("settings.imported") }}</mark></p>{% endif %}
+
+<section class="panel">
+<h2>{{ t("settings.language") }}</h2>
+<p><a href="/lang/en" role="button" class="{{ '' if request.state.lang == 'en' else 'outline' }}">English</a>
+   <a href="/lang/ru" role="button" class="{{ '' if request.state.lang == 'ru' else 'outline' }}">Русский</a></p>
+
+</section>
+<section class="panel">
+<h2>{{ t("settings.database") }}</h2>
+<p>{{ t("settings.db_path") }}: <code>{{ db_path }}</code><br>{{ t("settings.db_size", kb=(db_size / 1024) | round(1)) }}</p>
+
+</section>
+<section class="panel">
+<h2>{{ t("settings.backup") }}</h2>
+<p><a href="/settings/export" role="button">{{ t("settings.export") }}</a></p>
+<form method="post" action="/settings/import" enctype="multipart/form-data">
+  <label>{{ t("settings.import") }}
+    <input type="file" name="file" accept="application/json,.json" required>
+  </label>
+  <label><input type="checkbox" name="confirm" value="yes" required> {{ t("settings.import_confirm") }}</label>
+  <button type="submit" class="contrast">{{ t("settings.import_button") }}</button>
+</form>
+</section>
+{% endblock %}

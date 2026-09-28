@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="{{ request.state.lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ settings.app.name }}{% endblock %}</title>
+  <link rel="preload" href="/static/onest-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/static/pico.min.css">
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/htmx.min.js" defer></script>
+</head>
+<body>
+  <header>
+    <nav class="container">
+      {% set path = request.url.path %}
+      <ul><li><a class="brand" href="/">{{ settings.app.name }}</a></li></ul>
+      <ul>
+        <li><a href="/" {% if path == "/" %}aria-current="page"{% endif %}>{{ t("nav.dashboard") }}</a></li>
+        <li><a href="/engineers" {% if path.startswith("/engineers") %}aria-current="page"{% endif %}>{{ t("nav.engineers") }}</a></li>
+        <li><a href="/questions" {% if path.startswith("/questions") %}aria-current="page"{% endif %}>{{ t("nav.questions") }}</a></li>
+        <li><a href="/settings" {% if path.startswith("/settings") %}aria-current="page"{% endif %}>{{ t("nav.settings") }}</a></li>
+        <li><span class="lang">
+          <a href="/lang/en" {% if request.state.lang == "en" %}aria-current="true"{% endif %}>EN</a>
+          <a href="/lang/ru" {% if request.state.lang == "ru" %}aria-current="true"{% endif %}>RU</a>
+        </span></li>
+      </ul>
+    </nav>
+  </header>
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+  <script>
+    // htmx doesn't swap 4xx/5xx responses; surface them so a failed autosave isn't silent.
+    document.addEventListener("htmx:responseError", (e) => {
+      let msg = e.detail.xhr.statusText;
+      try { msg = JSON.parse(e.detail.xhr.responseText).detail; } catch {}
+      alert(msg);
+    });
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
