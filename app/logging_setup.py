@@ -17,13 +17,15 @@ class InterceptHandler(logging.Handler):
 
 def setup_logging():
     logger.remove()
-    logger.add(sys.stderr, level=settings.log.level)
+    # diagnose=False: loguru would otherwise print local variable values (i.e. note text) in tracebacks
+    logger.add(sys.stderr, level=settings.log.level, diagnose=False)
     if settings.log.to_file:
         logger.add(
             f"{settings.log.dir}/app.log",
             level=settings.log.level,
             rotation=settings.log.rotation,
             retention=settings.log.retention,
+            diagnose=False,
         )
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
     for name in ("uvicorn", "uvicorn.error", "uvicorn.access", "fastapi"):
