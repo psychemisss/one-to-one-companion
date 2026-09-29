@@ -2,6 +2,10 @@
 
 A small single-user web app for a team lead to prepare, run, and track 1:1 meetings. EN / RU UI.
 
+
+https://github.com/user-attachments/assets/6d4acd4e-012b-4931-847e-1352a98f4a8c
+
+
 ## Run (Docker)
 
 Prebuilt image (built by CI on every push to `main`, amd64 + arm64):
